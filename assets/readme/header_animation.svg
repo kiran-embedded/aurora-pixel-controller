@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120">
+  <defs>
+    <!-- Spectral Gradient for the VU look -->
+    <linearGradient id="vu-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00F0FF;stop-opacity:1" /> <!-- Cyan -->
+      <stop offset="50%" style="stop-color:#AF52DE;stop-opacity:1" /> <!-- Purple -->
+      <stop offset="100%" style="stop-color:#FF2D55;stop-opacity:1" /> <!-- Magenta -->
+    </linearGradient>
+
+    <!-- Mask to reveal text character by character -->
+    <mask id="reveal-mask">
+      <rect x="0" y="0" width="0" height="120" fill="white">
+        <animate attributeName="width" values="0;800;800;0" dur="8s" repeatCount="indefinite" keyTimes="0;0.7;0.9;1" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1; 0.4 0 0.2 1" />
+      </rect>
+    </mask>
+
+    <!-- Glow Filter for the Peak -->
+    <filter id="peak-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background (Optional subtle grid) -->
+  <style>
+    .cyber-text {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-weight: 900;
+      font-size: 48px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .base-text {
+      fill: url(#vu-gradient);
+    }
+    .peak-text {
+      fill: #FFFFFF;
+      filter: url(#peak-glow);
+    }
+  </style>
+
+  <!-- The Base Spectral Text (Revealed by Mask) -->
+  <text x="50%" y="65" text-anchor="middle" class="cyber-text base-text" mask="url(#reveal-mask)">
+    AURORA PIXEL CONTROLLER
+  </text>
+
+  <!-- The Peak (White glowing character at the edge of the typing head) -->
+  <g mask="url(#reveal-mask)">
+     <rect x="0" y="25" width="4" height="60" fill="white">
+        <animate attributeName="x" values="50;750;750;50" dur="8s" repeatCount="indefinite" keyTimes="0;0.7;0.9;1" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1; 0.4 0 0.2 1" />
+        <animate attributeName="opacity" values="0;1;1;0" dur="8s" repeatCount="indefinite" keyTimes="0;0.1;0.7;0.8" />
+     </rect>
+  </g>
+
+  <!-- Subtle Cyber Lines for Premium Look -->
+  <path d="M 50 100 L 750 100" stroke="#00F0FF" stroke-width="0.5" opacity="0.3" />
+  <path d="M 50 20 L 750 20" stroke="#FF2D55" stroke-width="0.5" opacity="0.3" />
+</svg>

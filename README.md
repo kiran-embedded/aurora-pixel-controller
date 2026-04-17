@@ -1,41 +1,50 @@
 <p align="center">
-  <img src="assets/readme/banner.png" alt="Aurora Pixel Banner" width="100%">
+  <img src="assets/readme/header_animation.svg" alt="Aurora Pixel Controller" width="100%">
 </p>
 
-# 🌌 Aurora Pixel Controller
-### Ultra-Premium Cyberpunk LED Engine | ESP32 & WS2812B
+## 🌌 Overview
+**Aurora Pixel Controller** is a premium, Cyber-Industrial interface designed for the next generation of LED control. Highlighting a fusion of AMOLED-black aesthetics and spectral audio-reactive visualization, this project delivers an elite "Pro Studio" feel to local and remote LED management.
 
-[![Version](https://img.shields.io/badge/version-v1.0.0--beta.2-FF2D55?style=for-the-badge)](https://github.com/kiran-embedded)
-[![License: MIT](https://img.shields.io/badge/License-MIT-00F0FF?style=for-the-badge)](LICENSE)
-[![Industrial Style](https://img.shields.io/badge/Aesthetic-Cyber--Industrial-white?style=for-the-badge)](https://github.com/kiran-embedded)
-
-**Aurora Pixel Controller** is an elite, AMOLED-optimized interface engineered for high-fidelity control of WS2812B LED ecosystems. Driven by a Flutter-Firebase-ESP32 pipeline, it delivers zero-latency configuration and real-time spectral visualization within a meticulously crafted Cyber-Industrial design language.
+[![Version](https://img.shields.io/badge/version-v1.0.0--beta.3-FF2D55?style=for-the-badge)](https://github.com/kiran-embedded)
+[![Status](https://img.shields.io/badge/Status-Beta_|_Started-00F0FF?style=for-the-badge)](https://github.com/kiran-embedded)
+[![Platform](https://img.shields.io/badge/Platform-Flutter_|_ESP32-white?style=for-the-badge)](https://flutter.dev)
 
 ---
 
-## ⚡ Simulation Experience
+## 🛰️ Project Status: Beta (Pre-Backend)
 
-We don't just control LEDs; we simulate the entire industrial aesthetic in real-time.
+> [!IMPORTANT]  
+> This project is currently in a **Frontend-Only Beta** state.
+> - **Started, Not Finished**: The visual core and simulation engines are complete, but full hardware integration is ongoing.
+> - **Current Phase**: Finalizing the Neural Logic bridge for Firebase and ESP32.
+
+---
+
+## ⚡ Key Experience
+
+### 🎭 Visual Simulation Hub
+We prioritize a "Simulation-First" approach, allowing you to design and preview animations before they hit the physical strip.
 
 <p align="center">
   <img src="assets/readme/vu_simulation.png" alt="VU Meter Simulation" width="48%">
   <img src="assets/readme/text_animation.png" alt="Cyber Text Animation" width="48%">
 </p>
 
-- **🖥️ Spectral Extraction**: Witness precise audio-reactive bars with physics-based damping.
-- **📟 Neural Interface**: Modern "Cyber-Glitch" text animations for system status and configuration updates.
-
 ---
 
-## 💎 Key Features
+## 🚧 Development Roadmap
 
-- **🛡️ Hardened Cyber UI**: A non-scrollable, rigid glassmorphism architecture optimized for OLED depth.
-- **🌀 Spectral Engines**:
-  - **Dynamic FX**: 12+ premium algorithms including *Aurora Borealis*, *Neon Breath*, and *Cyber Sweep*.
-  - **Audio React (VU)**: High-resolution spectral mapping with *Gravity Drop* and *Digital Wave* logic.
-- **🛰️ Firebase Bridge**: Global remote synchronization over Realtime Database with near-instant state deployment.
-- **📟 Hyper-Realistic Simulation**: On-device LED strip visualization featuring specular highlights and staggered diode behavior.
-- **🎨 Spectral Hub**: 360-degree Hue-rotation engine with precise 16-bit Hex channel control.
+The path from a high-end UI to a fully-synced Hardware Ecosystem:
+
+- [ ] **Phase 1: Neural Backend [HIGH PRIORITY]**
+  - **Bridge to Hardware**: Implement the bi-directional Firebase Realtime Database pipeline.
+  - **State Injection**: Connect `HardwareState` to physical ESP32 JSON updates.
+- [ ] **Phase 2: Advanced Creative FX**
+  - **Spectral Core**: Develop advanced, multi-layer creative animations (e.g., *Neural Drift*, *Void Pulse*).
+  - **Custom Shaders**: Implement Skia-based shaders for more organic "water-flow" effects.
+- [ ] **Phase 3: Hardware Expansion**
+  - **OTA Bridge**: Deploy firmware updates directly from the Setup tab via modern OTA protocols.
+  - **Multi-Strip Control**: Manage multiple ESP32 hubs from a single neural dashboard.
 
 ---
 
@@ -53,52 +62,18 @@ graph LR
     style D fill:#AF52DE,stroke:#000,stroke-width:2px,color:#000
 ```
 
-### 📉 "Gravity Drop" VU Meter Logic
-Our VU simulation uses a **Physics-Damped Accumulation** model:
-1.  **Magnitude Capture**: Real-time signal gain is mapped to the [0, N] LED range.
-2.  **Peak Retention**: The highest magnitude is temporarily cached as a "Peak Pixel."
-3.  **Gravity Fall**: The Peak Pixel descends according to a gravity-constant (G), creating a smooth, weighted release effect common in high-end studio hardware.
-
 ---
 
-## 🚀 Deployment
-
-### Prerequisites
-- **Flutter Environment**: Stable channel.
-- **Firebase Instance**: Realtime Database (RTDB) enabled.
-- **Hardware Integration**: ESP32 with the [FastLED](https://github.com/FastLED/FastLED) or [NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel) libraries.
-
-### Quick Start
-1.  **Clone Source**:
-    ```bash
-    git clone https://github.com/kiran-embedded/aurora-pixel-controller.git
-    cd aurora-pixel-controller
-    ```
-2.  **Initialize Packages**:
-    ```bash
-    flutter pub get
-    ```
-3.  **Deploy**:
-    - Inject `google-services.json` / `GoogleService-Info.plist`.
-    - `flutter run`
-
----
-
-## 🏗️ Roadmap
-
-- [ ] **Scene Persistence**: Save spectral configurations to cloud slots.
-- [ ] **Neural Schedule**: Logic-based lighting transitions via time-of-day.
-- [ ] **Secure-Link OTA**: Wireless firmware deployment via the neural bridge.
+## 🚀 Installation
+1.  **Clone Source**: `git clone https://github.com/kiran-embedded/aurora-pixel-controller.git`
+2.  **Initialize**: `flutter pub get`
+3.  **Deploy**: Inject your Firebase config and `flutter run`.
 
 ---
 
 ## 👨‍💻 Engineering
 
-Crafted in the grid by **[kiran-embedded](https://github.com/kiran-embedded)**
-
-> [!CAUTION]  
-> Project is in **v1.0.0-Beta**. Performance may vary across experimental hardware environments.
+Crafted in the neon grid by **[kiran-embedded](https://github.com/kiran-embedded)**
 
 ## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT License. See `LICENSE` for more information.
