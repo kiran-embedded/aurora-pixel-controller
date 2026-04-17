@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60">
+  <defs>
+    <filter id="glow-meteor">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background path -->
+  <rect x="10" y="25" width="380" height="10" rx="5" fill="#1A1A1A" />
+
+  <!-- Meteor 01 -->
+  <rect x="-50" y="25" width="40" height="10" rx="5" fill="#00F0FF" filter="url(#glow-meteor)">
+    <animate attributeName="x" values="-50;450" dur="2s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite" keyTimes="0;0.1;0.9;1" />
+  </rect>
+
+  <!-- Meteor 02 -->
+  <rect x="-50" y="25" width="30" height="10" rx="5" fill="#AF52DE" filter="url(#glow-meteor)">
+    <animate attributeName="x" values="-100;450" dur="1.5s" begin="0.8s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;1;0" dur="1.5s" begin="0.8s" repeatCount="indefinite" keyTimes="0;0.1;0.9;1" />
+  </rect>
+
+  <!-- Meteor 03 -->
+  <rect x="-50" y="25" width="50" height="10" rx="5" fill="#FF2D55" filter="url(#glow-meteor)">
+    <animate attributeName="x" values="-200;450" dur="3s" begin="0.3s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;1;0" dur="3s" begin="0.3s" repeatCount="indefinite" keyTimes="0;0.1;0.9;1" />
+  </rect>
+
+  <text x="10" y="15" fill="white" font-family="monospace" font-size="10" font-weight="bold" opacity="0.6">NEURAL METEOR SHOWER</text>
+</svg>

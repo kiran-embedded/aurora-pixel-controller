@@ -20,14 +20,26 @@
 
 ---
 
-## ⚡ Key Experience
+## ⚡ Simulation Experience (Live Previews)
 
-### 🎭 Visual Simulation Hub
-We prioritize a "Simulation-First" approach, allowing you to design and preview animations before they hit the physical strip.
+We don't just control LEDs; we simulate the entire industrial aesthetic in real-time. As you explore the documentation, witness the hardware performance through our **Live SVG Simulation Gallery**.
 
+### 📉 Spectral Gravity (VU Mode)
+*Physics-based peak detection with weighted gravity-drop release.*
 <p align="center">
-  <img src="assets/readme/vu_simulation.png" alt="VU Meter Simulation" width="48%">
-  <img src="assets/readme/text_animation.png" alt="Cyber Text Animation" width="48%">
+  <img src="assets/readme/simulation_gravity_drop.svg" alt="Gravity Drop VU Simulation" width="100%">
+</p>
+
+### ☄️ Neural Meteor Shower (Pixel Mode)
+*Asynchronous streaking light pulses with organic tail decay algorithms.*
+<p align="center">
+  <img src="assets/readme/simulation_meteor_shower.svg" alt="Meteor Shower Simulation" width="100%">
+</p>
+
+### 🧘 Ambient Neon Breath (Ambient Mode)
+*Rhythmic, sub-beat breathing effects designed for immersion.*
+<p align="center">
+  <img src="assets/readme/simulation_neon_pulse.svg" alt="Neon Breath Simulation" width="100%">
 </p>
 
 ---

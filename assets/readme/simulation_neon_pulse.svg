@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60">
+  <defs>
+    <filter id="glow-pulse">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Pulse Background -->
+  <rect x="10" y="25" width="380" height="15" rx="7.5" fill="#111111" />
+
+  <!-- Pulsing Surface -->
+  <rect x="10" y="25" width="380" height="15" rx="7.5" fill="#AF52DE" filter="url(#glow-pulse)">
+    <animate attributeName="opacity" values="0.1;0.8;0.1" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="fill" values="#AF52DE;#FF2D55;#AF52DE" dur="8s" repeatCount="indefinite" />
+  </rect>
+
+  <!-- Core Glow -->
+  <rect x="20" y="30" width="360" height="5" rx="2.5" fill="white" opacity="0.4">
+    <animate attributeName="opacity" values="0.1;0.6;0.1" dur="4s" repeatCount="indefinite" />
+  </rect>
+
+  <text x="10" y="15" fill="white" font-family="monospace" font-size="10" font-weight="bold" opacity="0.6">AMBIENT NEON BREATH</text>
+</svg>
