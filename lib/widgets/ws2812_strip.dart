@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../core/theme/layout_engine.dart';
+import '../core/engine/display_engine.dart';
+import 'effect_engine.dart';
 
 class WS2812Strip extends StatefulWidget {
   final int count;
@@ -63,13 +64,12 @@ class _WS2812StripState extends State<WS2812Strip> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      clipBehavior: Clip.hardEdge, // Prevent bleeding overlap
-      padding: EdgeInsets.all(LayoutEngine.scaleV(10, context)), // Scaled
+      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.all(UDE.sp(10, context)),
       decoration: BoxDecoration(
-        color: const Color(0xFF030303), // Make it almost pure black for infinite depth
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.02)), // Dimmer border
-        boxShadow: const [], // Zero background bleeding
+        color: const Color(0xFF020202), // Deep AMOLED base
+        borderRadius: BorderRadius.circular(UDE.r(24, context)),
+        border: Border.all(color: Colors.white.withOpacity(0.015)),
       ),
       child: AnimatedBuilder(
         animation: _animController,
@@ -86,145 +86,114 @@ class _WS2812StripState extends State<WS2812Strip> with TickerProviderStateMixin
   }
 
   Widget _buildPixel(int index, double progress, BuildContext context) {
-    String name = widget.animation.toLowerCase();
-    Color ledColor = widget.activeColor;
-    double scale = 1.0;
-    double opacity = widget.isPowered ? (widget.brightness / 100.0) : 0.0;
-    double blurRadius = 12.0;
+    SimulatedLED sim = EffectEngine.simulate(
+      index, widget.count, progress, widget.mode, widget.animation,
+      widget.activeColor, widget.colorMode, widget.isPowered, _vuLevel,
+    );
 
-    if (widget.mode == 'pixel') {
-      if (name.contains('meteor') || name.contains('flow') || name.contains('chase')) {
-        ledColor = widget.colorMode == 'single' 
-            ? widget.activeColor 
-            : HSVColor.fromAHSV(1.0, (index / widget.count) * 360, 1.0, 1.0).toColor();
-        
-        // Meteor cascade math
-        double delay = index * 0.1;
-        double localProgress = (progress - delay) % 1.0;
-        if (localProgress < 0) localProgress += 1.0;
-        
-        if (localProgress < 0.1) {
-          opacity = widget.isPowered ? 1.0 : 0;
-          scale = 1.1;
-          blurRadius = 15.0; // Restrict blur
-        } else if (localProgress < 0.3) {
-          opacity = widget.isPowered ? 0.4 : 0;
-          scale = 1.0;
-          blurRadius = 6.0;
-        } else {
-          opacity = widget.isPowered ? 0.1 : 0;
-          scale = 0.8;
-          blurRadius = 0.0;
-        }
-      } else if (name.contains('strobe') || name.contains('flash')) {
-        // Sharp strobe math
-        if (progress > 0.5 && progress < 0.52) {
-          opacity = widget.isPowered ? 1.0 : 0;
-          blurRadius = 20.0;
-        } else {
-          opacity = 0;
-        }
-      } else if (name.contains('breathe')) {
-        double val = (sin(progress * 2 * pi) + 1) / 2; // 0 to 1
-        opacity = widget.isPowered ? (0.3 + (0.7 * val)) : 0.0;
-        scale = 0.95 + (0.05 * val);
-        blurRadius = 10.0 * val;
-      } else {
-        // Solid
-        ledColor = widget.colorMode == 'single' 
-            ? widget.activeColor 
-            : HSVColor.fromAHSV(1.0, (index / widget.count) * 360, 1.0, 1.0).toColor();
-      }
-    } else {
-      // VU Mode logic
-      bool isPeak = index == _vuLevel.floor();
-      bool isAtOrBelow = index <= _vuLevel;
-
-      if (name.contains('gravity') || name.contains('peak')) {
-        ledColor = isPeak 
-            ? Colors.white 
-            : (widget.colorMode == 'single' 
-                ? widget.activeColor 
-                : (index < widget.count * 0.6 ? const Color(0xFF00E676) : const Color(0xFFFFEA00)));
-        if (isPeak) {
-          scale = 1.25;
-          blurRadius = 16.0;
-        }
-      } else {
-        double pos = index / widget.count;
-        ledColor = widget.colorMode == 'single' 
-            ? widget.activeColor 
-            : (pos < 0.6 ? const Color(0xFF00E676) : pos < 0.85 ? const Color(0xFFFFEA00) : const Color(0xFFFF1744));
-      }
-
-      if (!isAtOrBelow) {
-        opacity = widget.isPowered ? 0.05 : 0;
-        blurRadius = 0;
-      }
-    }
+    double brightnessFactor = widget.brightness / 100.0;
     
-    // Apply brightness master offset
-    opacity = opacity * (widget.brightness / 100.0);
-
-    return Opacity(
-      opacity: opacity,
-      child: Transform.scale(
-        scale: scale,
-        child: Container(
-          width: LayoutEngine.scaleV(12, context), // Narrower physical footprint for realism
-          height: LayoutEngine.scaleV(20, context), // Rectangular SMD housing
-          margin: EdgeInsets.symmetric(horizontal: LayoutEngine.scaleV(1, context)),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0A0A0A), // Glossy black housing bottom
-            border: Border.all(color: Colors.white.withAlpha(10), width: 0.5),
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: [BoxShadow(color: Colors.black, blurRadius: 2, spreadRadius: 0)],
-          ),
-          child: Center(
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                shape: BoxShape.circle, // Circular diode core housing
-                border: Border.all(color: Colors.white.withAlpha(15)),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                   // The Glow Base
-                  Container(
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: ledColor,
-                      shape: BoxShape.circle,
-                      boxShadow: blurRadius > 0 ? [
-                        BoxShadow(
-                          color: ledColor.withOpacity(0.95), // Ultra intense center
-                          blurRadius: blurRadius * 1.5,
-                          spreadRadius: blurRadius * 0.15, // Controlled bloom
-                        )
-                      ] : [],
-                    ),
-                  ),
-                  // The AMOLED Specular Highlight Overdrive
-                  if (blurRadius > 0)
-                    Container(
-                      width: 1.5,
-                      height: 1.5,
-                      decoration: const BoxDecoration(
-                        color: Colors.white, // Ultra bright diode wire element
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.white, blurRadius: 3)],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
+    return RepaintBoundary( // Performance optimization
+      child: CustomPaint(
+        size: Size(UDE.sp(14, context), UDE.sp(22, context)),
+        painter: SpecularIsolationPainter(
+          ledColor: sim.color,
+          blurRadius: sim.blurRadius * brightnessFactor,
+          opacity: sim.opacity * brightnessFactor,
+          scale: sim.scale,
         ),
       ),
     );
   }
 }
+
+class SpecularIsolationPainter extends CustomPainter {
+  final Color ledColor;
+  final double blurRadius;
+  final double opacity;
+  final double scale; // Now used for internal intensity, not housing size
+  
+  SpecularIsolationPainter({
+    required this.ledColor,
+    required this.blurRadius,
+    required this.opacity,
+    required this.scale,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(4));
+    
+    // 1. Die-Cast Housing (Solid, Non-scaling)
+    final Paint housingPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF1F1F1F), Color(0xFF030303)],
+      ).createShader(rect);
+    
+    canvas.drawRRect(rrect, housingPaint);
+    
+    // 2. ADVANCED BLEEDING PREVENTION: SaveLayer Masking
+    // We use saveLayer to ensure that any blur effects are strictly bounded by the clip.
+    canvas.saveLayer(rect, Paint());
+    canvas.clipRRect(rrect);
+
+    if (opacity > 0.01) {
+      final double centerX = size.width / 2;
+      final double centerY = size.height / 2;
+      final double diodeSize = size.width * 0.6;
+
+      // 3. Inner Diode Cavity
+      canvas.drawCircle(Offset(centerX, centerY), diodeSize / 2, 
+          Paint()..color = Colors.black..style = PaintingStyle.fill);
+
+      // 4. CLEAN VIBRANT COLOR BASE
+      final baseColorPaint = Paint()
+        ..color = ledColor.withOpacity(opacity)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(centerX, centerY), diodeSize * 0.48, baseColorPaint);
+
+      // 5. SPECULAR OVERDRIVE (The "Realistic" Glow)
+      if (blurRadius > 0) {
+        final glowPaint = Paint()
+          ..color = ledColor.withOpacity(opacity * 1.0) // 100% glow color purity
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, (blurRadius + 4.0) * scale); // Expansive glow
+        canvas.drawCircle(Offset(centerX, centerY), diodeSize * 0.48, glowPaint);
+      }
+
+      // 6. Specular Heart (Pure White Focus point)
+      final corePaint = Paint()
+        ..color = Colors.white.withOpacity(opacity * 0.9)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
+      canvas.drawCircle(Offset(centerX, centerY), scale * 2.5, corePaint);
+      
+      // 6. Internal Reflection Rim
+      final reflectionPaint = Paint()
+        ..color = ledColor.withOpacity(0.1)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.5;
+      canvas.drawCircle(Offset(centerX, centerY), diodeSize / 2, reflectionPaint);
+    }
+    
+    canvas.restore(); // Terminate clipping and bleeding
+
+    // 7. Housing Rim Highlight (Fixed, Clean edge)
+    final highlightPaint = Paint()
+      ..color = Colors.white.withAlpha(isSelected ? 40 : 15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5;
+    canvas.drawRRect(rrect, highlightPaint);
+  }
+
+  bool get isSelected => opacity > 0.5;
+
+  @override
+  bool shouldRepaint(covariant SpecularIsolationPainter oldDelegate) => 
+    oldDelegate.ledColor != ledColor || 
+    oldDelegate.blurRadius != blurRadius || 
+    oldDelegate.opacity != opacity ||
+    oldDelegate.scale != scale;
+}
+

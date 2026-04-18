@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../logic/hardware_state.dart';
+import '../logic/haptic_service.dart';
 import '../core/theme/app_theme.dart';
-import '../core/theme/layout_engine.dart';
+import '../core/engine/display_engine.dart';
 import '../widgets/ws2812_strip.dart';
 
 class HomeTab extends StatelessWidget {
@@ -14,73 +15,66 @@ class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var state = context.watch<HardwareState>();
-    Color glow = state.isPowered ? (state.colorMode == 'single' ? state.activeColor : AppTheme.highlight) : Colors.transparent;
+    final themeColor = Theme.of(context).primaryColor;
+    Color glow = state.isPowered ? (state.colorMode == 'single' ? state.activeColor : themeColor) : Colors.transparent;
 
     return Padding(
       padding: EdgeInsets.only(
-        left: LayoutEngine.scaleV(20, context), 
-        right: LayoutEngine.scaleV(20, context), 
-        top: LayoutEngine.scaleV(60, context), 
+        left: UDE.sp(20, context), 
+        right: UDE.sp(20, context), 
+        top: UDE.sp(60, context), 
         // Removing massive bottom padding because scroll boundaries are killed
-        bottom: LayoutEngine.scaleV(20, context)
+        bottom: UDE.sp(20, context)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          _GlitchTypingText(
-            text: "AURORA PIXEL\nCONTROLLER",
-            style: TextStyle(
-              fontSize: LayoutEngine.scaleF(28, context), // Large, elegant
-              fontWeight: FontWeight.w900, 
-              color: Colors.white, 
-              letterSpacing: -1.0,
-              height: 1.1,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: _GlitchTypingText(
+              text: "AURORA PIXEL\nCONTROLLER",
+              style: TextStyle(
+                fontSize: UDE.tp(28, context), 
+                fontWeight: FontWeight.w900, 
+                color: Colors.white, 
+                letterSpacing: -1.0,
+                height: 1.1,
+              ),
             ),
           ),
-          SizedBox(height: LayoutEngine.scaleV(16, context)),
+          SizedBox(height: UDE.sp(16, context)),
 
-          // The Under-Header Neon Border Setup
-          Container(
-            height: 1.5, // Razor thin
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppTheme.highlight.withOpacity(0.8),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.highlight.withOpacity(0.4), 
-                  blurRadius: 15, 
-                  spreadRadius: 2, 
-                  offset: const Offset(0, 5) // Soft downward glow
-                )
-              ],
-            ),
+          // Precision Top Border (Zero Bleed)
+          CustomPaint(
+            size: const Size(double.infinity, 2),
+            painter: _CurvedNeonPainter(color: themeColor.withOpacity(UDE.dimmedNeonAlpha), radius: 0),
           ).animate(onPlay: (c) => c.repeat()).shimmer(
-            duration: 2500.ms, 
-            color: Colors.white.withAlpha(200), // Intense flowing highlight
-            angle: 0.0, // Strict horizontal flow
-            size: 2.0 // Wide band
+            duration: 3000.ms, 
+            color: Colors.white.withAlpha(50), 
+            angle: 0.0,
           ),
           
-          SizedBox(height: LayoutEngine.scaleV(40, context)), // Margin under the border
+          SizedBox(height: UDE.sp(40, context)),
 
           // Main Action Grid
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(), // Rigid Lock
-            mainAxisSpacing: LayoutEngine.scaleV(72, context), // Large vertical gap for luxury lock
-            crossAxisSpacing: LayoutEngine.scaleV(20, context),
-            childAspectRatio: (MediaQuery.sizeOf(context).width / 2) / LayoutEngine.scaleV(145, context), 
+            mainAxisSpacing: UDE.sp(72, context), // Large vertical gap for luxury lock
+            crossAxisSpacing: UDE.sp(20, context),
+            childAspectRatio: (MediaQuery.sizeOf(context).width / 2) / UDE.sp(145, context), 
             children: [
               _ControlButton(
                 icon: LucideIcons.power,
                 label: "Master Power",
                 statusText: state.isPowered ? "ACTIVE" : "OFF",
                 isActive: state.isPowered,
-                glowColor: AppTheme.highlight,
+                glowColor: themeColor,
                 onTap: () => context.read<HardwareState>().togglePower(),
-              ),
+              ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.2, end: 0),
               _ControlButton(
                 icon: LucideIcons.palette,
                 label: "Color Mode",
@@ -88,7 +82,7 @@ class HomeTab extends StatelessWidget {
                 isActive: state.colorMode == 'multi',
                 glowColor: Colors.purpleAccent,
                 onTap: () => context.read<HardwareState>().setColorMode(state.colorMode == 'single' ? 'multi' : 'single'),
-              ),
+              ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.2, end: 0),
               _ControlButton(
                 icon: state.mode == 'pixel' ? LucideIcons.sparkles : LucideIcons.activity,
                 label: state.mode == 'pixel' ? "Pixel FX" : "Audio React",
@@ -96,7 +90,7 @@ class HomeTab extends StatelessWidget {
                 isActive: true, // Always active
                 glowColor: state.mode == 'pixel' ? Colors.blueAccent : Colors.orangeAccent,
                 onTap: () => context.read<HardwareState>().setMode(state.mode == 'pixel' ? 'vu' : 'pixel'),
-              ),
+              ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.2, end: 0),
               _ControlButton(
                 icon: LucideIcons.sun,
                 label: "Brightness",
@@ -107,32 +101,30 @@ class HomeTab extends StatelessWidget {
                   int next = state.brightness >= 100 ? 25 : state.brightness + 25;
                   context.read<HardwareState>().setBrightness(next);
                 },
-              ),
+              ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.2, end: 0),
             ],
           ),
           
           // Use Spacer to push the studio preview dynamically to the bottom without scrolling
           const Spacer(),
           
-          Text("STUDIO PREVIEW", style: TextStyle(
-            fontSize: LayoutEngine.scaleF(12, context), 
-            fontWeight: FontWeight.bold, 
-            color: Colors.white54, 
-            letterSpacing: 2.0
-          )),
-          SizedBox(height: LayoutEngine.scaleV(12, context)),
+          Center(
+            child: UDE.tpSafe("STUDIO PREVIEW", TextStyle(
+              fontWeight: FontWeight.bold, 
+              color: themeColor, 
+              letterSpacing: 3.0
+            ), context),
+          ),
+          SizedBox(height: UDE.sp(8, context)), // Reduced to move it closer to the strip
           
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
-            padding: EdgeInsets.all(LayoutEngine.scaleV(20, context)),
-            margin: EdgeInsets.only(bottom: LayoutEngine.scaleV(85, context)), // Leave space for extreme bottom dock
+            padding: EdgeInsets.all(UDE.sp(20, context)),
+            margin: EdgeInsets.only(bottom: UDE.sp(85, context)), // Leave space for extreme bottom dock
             decoration: BoxDecoration(
-              color: const Color(0xFF0A0A0C),
-              borderRadius: BorderRadius.circular(LayoutEngine.scaleV(32, context)),
-              border: Border.all(color: AppTheme.neoBorder),
-              boxShadow: state.isPowered 
-                  ? [BoxShadow(color: glow.withOpacity(0.15), offset: Offset(0, LayoutEngine.scaleV(20, context)), blurRadius: 50, spreadRadius: -5)]
-                  : [],
+              color: const Color(0xFF020202), // Absolute Black
+              borderRadius: BorderRadius.circular(UDE.sp(32, context)),
+              border: Border.all(color: themeColor.withAlpha(40)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,30 +135,27 @@ class HomeTab extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          width: LayoutEngine.scaleV(10, context),
-                          height: LayoutEngine.scaleV(10, context),
+                          width: UDE.sp(10, context),
+                          height: UDE.sp(10, context),
                           decoration: BoxDecoration(
                             color: glow,
                             shape: BoxShape.circle,
-                            boxShadow: state.isPowered ? [BoxShadow(color: glow, blurRadius: 10)] : [],
                           ),
                         ),
-                        SizedBox(width: LayoutEngine.scaleV(10, context)),
-                        Text(state.activeAnimation.toUpperCase(), style: TextStyle(
-                          fontSize: LayoutEngine.scaleF(12, context), 
+                        SizedBox(width: UDE.sp(10, context)),
+                        UDE.tpSafe(state.activeAnimation.toUpperCase(), const TextStyle(
                           fontWeight: FontWeight.w900, 
                           color: Colors.white
-                        )),
+                        ), context),
                       ],
                     ),
-                    Text("${state.brightness}%", style: TextStyle(
-                      fontSize: LayoutEngine.scaleF(12, context), 
+                    UDE.tpSafe("${state.brightness}%", const TextStyle(
                       fontWeight: FontWeight.bold, 
                       color: Colors.white54
-                    )),
+                    ), context),
                   ],
                 ),
-                SizedBox(height: LayoutEngine.scaleV(24, context)),
+                SizedBox(height: UDE.sp(24, context)),
                 WS2812Strip(
                   count: 16,
                   mode: state.mode,
@@ -210,7 +199,7 @@ class _GlitchTypingText extends StatelessWidget {
         )
         .then()
         .animate(onPlay: (c) => c.repeat(reverse: true))
-        .shimmer(duration: 3000.ms, color: AppTheme.highlight.withAlpha(200));
+        .shimmer(duration: 3000.ms, color: Theme.of(context).primaryColor.withAlpha(200));
   }
 }
 
@@ -258,39 +247,32 @@ class _ControlButtonState extends State<_ControlButton> with SingleTickerProvide
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: widget.isActive ? const Color(0xFF18181C) : const Color(0xFF141417),
-        borderRadius: BorderRadius.circular(LayoutEngine.scaleV(28, context)),
+        borderRadius: BorderRadius.circular(UDE.sp(28, context)),
         border: Border.all(
           color: widget.isActive ? widget.glowColor.withAlpha(128) : AppTheme.dimBorder,
         ),
-        boxShadow: widget.isActive 
-            ? [BoxShadow(color: widget.glowColor.withOpacity(0.05), blurRadius: 20, spreadRadius: 0)]
-            : [const BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 0)],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: LayoutEngine.scaleV(42, context),
-            height: LayoutEngine.scaleV(42, context),
+            width: UDE.sp(42, context),
+            height: UDE.sp(42, context),
             decoration: BoxDecoration(
               color: widget.isActive ? widget.glowColor : Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(LayoutEngine.scaleV(14, context)),
-              boxShadow: widget.isActive 
-                  ? [BoxShadow(color: widget.glowColor.withOpacity(0.4), blurRadius: 15, spreadRadius: 0)]
-                  : [],
+              borderRadius: BorderRadius.circular(UDE.sp(14, context)),
             ),
-            child: Icon(widget.icon, size: LayoutEngine.scaleV(20, context), color: widget.isActive ? Colors.white : Colors.white54),
+            child: Icon(widget.icon, size: UDE.sp(20, context), color: widget.isActive ? Colors.white : Colors.white54),
           ),
-          SizedBox(height: LayoutEngine.scaleV(8, context)),
-          Text(widget.label.toUpperCase(), style: TextStyle(fontSize: LayoutEngine.scaleF(9, context), fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.5)),
-          SizedBox(height: LayoutEngine.scaleV(4, context)),
-          Text(widget.statusText, style: TextStyle(
-            fontSize: LayoutEngine.scaleF(14, context), 
+          SizedBox(height: UDE.sp(8, context)),
+          UDE.tpSafe(widget.label.toUpperCase(), const TextStyle(fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.5), context),
+          SizedBox(height: UDE.sp(4, context)),
+          UDE.tpSafe(widget.statusText, TextStyle(
             fontWeight: FontWeight.w900, 
             color: widget.isActive ? Colors.white : Colors.white54,
             letterSpacing: -0.5
-          )),
+          ), context),
         ],
       ),
     );
@@ -298,13 +280,17 @@ class _ControlButtonState extends State<_ControlButton> with SingleTickerProvide
     if (widget.isActive) {
       container = container.animate(onPlay: (c) => c.repeat(reverse: true))
           .shimmer(duration: 2000.ms, color: widget.glowColor.withAlpha(50)) // Smooth shimmer sweep
-          .elevation(end: 5, color: widget.glowColor.withAlpha(50), borderRadius: BorderRadius.circular(LayoutEngine.scaleV(28, context))) // Floating glow
+          .elevation(end: 5, color: widget.glowColor.withAlpha(50), borderRadius: BorderRadius.circular(UDE.sp(28, context))) // Floating glow
           .scaleXY(end: 1.02, duration: 1500.ms, curve: Curves.easeInOutSine); // Slow organical breathe
     }
 
     return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
+      onTapDown: (_) {
+        HapticService.trigger(HapticType.light);
+        _controller.forward();
+      },
       onTapUp: (_) {
+        HapticService.trigger(HapticType.medium);
         _controller.reverse();
         widget.onTap();
       },
@@ -315,4 +301,31 @@ class _ControlButtonState extends State<_ControlButton> with SingleTickerProvide
       ),
     );
   }
+}
+
+class _CurvedNeonPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+
+  _CurvedNeonPainter({required this.color, required this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint corePaint = Paint()
+      ..color = color
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    
+    final Paint glowPaint = Paint()
+      ..color = color.withOpacity(0.15)
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0);
+
+    canvas.drawLine(const Offset(0, 0), Offset(size.width, 0), glowPaint);
+    canvas.drawLine(const Offset(0, 0), Offset(size.width, 0), corePaint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -1,4 +1,4 @@
-package com.example.pixel_controller
+package com.iot.nebula.pixelengine
 
 import io.flutter.embedding.android.FlutterActivity
 
